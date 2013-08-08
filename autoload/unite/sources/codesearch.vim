@@ -28,7 +28,7 @@ function! s:unite_source.gather_candidates(args, context)
         \          s:unite_source.max_candidates,
         \          a:context.input)),
         \        "\n"),
-        \      'v:val =~ "^[^:]\\+:.\\+$"'),
+        \      'v:val =~ "^/[^:]\\+:.\\+$"'),
         \    '[v:val, split(v:val, ":", 1)[0]]'),
         \  '{
         \  "word": v:val[0],
