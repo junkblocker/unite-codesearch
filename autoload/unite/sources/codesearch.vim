@@ -17,6 +17,13 @@ elseif executable('csearch')
 else
   finish
 endif
+if has('win16') || has('win32') || has('win64') || has('win95') || has('gui_win32') || has('gui_win32s')
+  let s:filter_expr = 'v:val =~ "^[a-z]:[^:]\\+:.\\+$"'
+  let s:map_expr = '[v:val, strpart(v:val, 0, stridx(v:val, ":", 2))]'
+else
+  let s:filter_expr = 'v:val =~ "^/[^:]\\+:.\\+$"'
+  let s:map_expr = '[v:val, split(v:val, ":", 1)[0]]'
+endif
 
 function! s:unite_source.gather_candidates(args, context)
   return map(
@@ -27,9 +34,9 @@ function! s:unite_source.gather_candidates(args, context)
         \          s:codesearch_command,
         \          s:unite_source.max_candidates,
         \          a:context.input)),
-        \        "\n"),
-        \      'v:val =~ "^/[^:]\\+:.\\+$"'),
-        \    '[v:val, split(v:val, ":", 1)[0]]'),
+        \        '[\n\r]'),
+        \      s:filter_expr),
+        \    s:map_expr),
         \  '{
         \  "word": v:val[0],
         \  "source": "codesearch",
