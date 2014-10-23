@@ -25,7 +25,7 @@ else
 endif
 if has('win16') || has('win32') || has('win64') || has('win95') || has('gui_win32') || has('gui_win32s')
   let s:filter_expr = 'v:val =~ "^[a-z]:[^:]\\+:[^:]\\+:.\\+$"'
-  let s:map_expr = '[v:val, strpart(v:val, 0, stridx(v:val, ":", 2))]'
+  let s:map_expr = '[v:val, [join(split(v:val, ":")[:1], ":"), split(v:val, ":")[2]]]'
 else
   let s:filter_expr = 'v:val =~ "^/[^:]\\+:[^:]\\+:.\\+$"'
   let s:map_expr = '[v:val, split(v:val, ":", 1)[0:1]]'
