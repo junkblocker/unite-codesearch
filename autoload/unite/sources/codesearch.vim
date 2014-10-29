@@ -1,6 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+call unite#util#set_default('g:unite_source_codesearch_command', 'csearch')
 call unite#util#set_default('g:unite_source_codesearch_max_candidates', 30)
 call unite#util#set_default('g:unite_source_codesearch_ignore_case', 0)
 
@@ -14,15 +15,13 @@ let s:unite_source = {
       \ 'is_volatile': 1,
       \ }
 
-if executable('csearch')
-  let s:codesearch_command = 'csearch '
-  if g:unite_source_codesearch_ignore_case
-    let s:codesearch_command .= ' -i '
-  endif
-  let s:codesearch_command .= ' -n -m %d "%s"'
-else
-  finish
+let s:codesearch_command = g:unite_source_codesearch_command
+if g:unite_source_codesearch_ignore_case
+  let s:codesearch_command .= ' -i '
 endif
+let s:codesearch_command .= ' -n -m %d "%s"'
+echomsg s:codesearch_command
+
 if has('win16') || has('win32') || has('win64') || has('win95') || has('gui_win32') || has('gui_win32s')
   let s:filter_expr = 'v:val =~ "^[a-z]:[^:]\\+:[^:]\\+:.\\+$"'
   let s:map_expr = '[v:val, [join(split(v:val, ":")[:1], ":"), split(v:val, ":")[2]]]'
