@@ -15,11 +15,13 @@ let s:unite_source = {
       \ 'is_volatile': 1,
       \ }
 
+let s:cwd = getcwd()
+
 let s:codesearch_command = g:unite_source_codesearch_command
 if g:unite_source_codesearch_ignore_case
   let s:codesearch_command .= ' -i '
 endif
-let s:codesearch_command .= ' -n -m %d "%s"'
+let s:codesearch_command .= ' -n -m %d -f "%s" "%s"'
 echomsg s:codesearch_command
 
 if has('win16') || has('win32') || has('win64') || has('win95') || has('gui_win32') || has('gui_win32s')
@@ -38,6 +40,7 @@ function! s:unite_source.gather_candidates(args, context)
         \        unite#util#system(printf(
         \          s:codesearch_command,
         \          s:unite_source.max_candidates,
+        \          s:cwd,
         \          a:context.input)),
         \        '[\n\r]'),
         \      s:filter_expr),
