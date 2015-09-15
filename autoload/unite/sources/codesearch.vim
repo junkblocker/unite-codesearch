@@ -4,6 +4,7 @@ set cpo&vim
 call unite#util#set_default('g:unite_source_codesearch_command', 'csearch')
 call unite#util#set_default('g:unite_source_codesearch_max_candidates', 30)
 call unite#util#set_default('g:unite_source_codesearch_ignore_case', 0)
+call unite#util#set_default('g:unite_source_codesearch_use_cwd', 1)
 
 let s:unite_source = {
       \ 'name': 'codesearch',
@@ -15,15 +16,6 @@ let s:unite_source = {
       \ 'is_volatile': 1,
       \ }
 
-let s:cwd = getcwd()
-
-let s:codesearch_command = g:unite_source_codesearch_command
-if g:unite_source_codesearch_ignore_case
-  let s:codesearch_command .= ' -i '
-endif
-let s:codesearch_command .= ' -n -m %d -f "%s" "%s"'
-echomsg s:codesearch_command
-
 if has('win16') || has('win32') || has('win64') || has('win95') || has('gui_win32') || has('gui_win32s')
   let s:filter_expr = 'v:val =~ "^[a-z]:[^:]\\+:[^:]\\+:.\\+$"'
   let s:map_expr = '[v:val, [join(split(v:val, ":")[:1], ":"), split(v:val, ":")[2]]]'
@@ -33,15 +25,29 @@ else
 endif
 
 function! s:unite_source.gather_candidates(args, context)
+  let l:codesearch_command = g:unite_source_codesearch_command
+  if g:unite_source_codesearch_ignore_case
+    let l:codesearch_command .= ' -i '
+  endif
+  if g:unite_source_codesearch_use_cwd
+    let l:codesearch_command .= ' -n -m %d -f "%s" "%s"'
+    let l:out = unite#util#system(printf(
+          \          l:codesearch_command,
+          \          s:unite_source.max_candidates,
+          \          getcwd(),
+          \          a:context.input))
+  else
+    let l:codesearch_command .= ' -n -m %d "%s"'
+    let l:out = unite#util#system(printf(
+          \          l:codesearch_command,
+          \          s:unite_source.max_candidates,
+          \          a:context.input))
+  endif
   return map(
         \  map(
         \    filter(
         \      split(
-        \        unite#util#system(printf(
-        \          s:codesearch_command,
-        \          s:unite_source.max_candidates,
-        \          s:cwd,
-        \          a:context.input)),
+        \        l:out,
         \        '[\n\r]'),
         \      s:filter_expr),
         \    s:map_expr),
@@ -56,7 +62,7 @@ function! s:unite_source.gather_candidates(args, context)
 endfunction
 
 function! unite#sources#codesearch#define()
-  return exists('s:codesearch_command') ? s:unite_source : []
+  return exists('s:unite_source') ? s:unite_source : []
 endfunction
 
 let &cpo = s:save_cpo
