@@ -31,12 +31,11 @@ function! s:unite_source.gather_candidates(args, context)
   endif
   if g:unite_source_codesearch_use_cwd
     let l:codesearch_command .= ' -n -m %d -f "%s" "%s"'
-	let l:cmdline = printf(
+    let l:cmdline = printf(
           \          l:codesearch_command,
           \          s:unite_source.max_candidates,
           \          substitute(getcwd(), '\\', '\\\\\\\\', 'g'),
           \          a:context.input)
-	" echom l:cmdline
     let l:out = unite#util#system(l:cmdline)
   else
     let l:codesearch_command .= ' -n -m %d "%s"'
